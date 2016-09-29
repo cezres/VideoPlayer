@@ -21,6 +21,9 @@
 /// 当前播放时间
 - (NSTimeInterval)currentPlaybackTime;
 
+/// 更改播放时间
+- (void)changePlayTime:(NSTimeInterval)newTime;
+
 @end
 
 
@@ -30,16 +33,13 @@
 /// 代理
 @property (weak, nonatomic) id<VideoPlayerControlDelegate> delegate;
 
-/// 标题
-@property (strong, nonatomic) NSString *title;
-
 /// 播放状态
-@property (nonatomic, assign) IJKMPMoviePlaybackState playbackState;
+@property (assign, nonatomic) IJKMPMoviePlaybackState playbackState;
 
 /// 当前播放时间
-@property (nonatomic, assign) NSTimeInterval currentPlaybackTime;
+@property (assign, nonatomic) NSTimeInterval currentPlaybackTime;
 /// 总播放时间
-@property (nonatomic, assign) NSTimeInterval duration;
+@property (assign, nonatomic) NSTimeInterval duration;
 
 /// 设置标题
 - (void)setTitle:(NSString *)title;

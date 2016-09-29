@@ -7,6 +7,8 @@
 //
 
 #import "VideoPlayerControl.h"
+#import <MediaPlayer/MediaPlayer.h>
+#import "VideoPlayerProgressView.h"
 
 /**
  *  手势处理方式
@@ -30,18 +32,22 @@ typedef NS_ENUM(NSInteger, PlayerPanGestureHandleMode) {
 
 
 @interface VideoPlayerControl ()
-
+{
+    NSTimeInterval _tempTime;
+}
 @property (strong, nonatomic) UIView    *topView;
 @property (strong, nonatomic) UIButton  *backButton;    // 返回
 @property (strong, nonatomic) UILabel   *titleLabel;    // 标题
 
 
 @property (strong, nonatomic) UIView    *bottomView;
-@property (strong, nonatomic) UIView    *progressView;  // 播放进度
+@property (strong, nonatomic) VideoPlayerProgressView    *progressView;  // 播放进度
 @property (strong, nonatomic) UILabel   *currentTimeLabel;  // 当前播放时间
 @property (strong, nonatomic) UILabel   *durationLabel; // 总播放时间
 
 @property (strong, nonatomic) UIButton  *playSwitchButton;  // 播放开关
+
+@property (assign, nonatomic) PlayerPanGestureHandleMode panGestureHandleMode; // 手势处理方式
 
 @end
 
@@ -81,11 +87,13 @@ typedef NS_ENUM(NSInteger, PlayerPanGestureHandleMode) {
 
 - (void)refresh {
     
-    NSInteger currentPlaybackTime = [self.delegate currentPlaybackTime];
+    self.currentPlaybackTime = [self.delegate currentPlaybackTime];
     
-    NSLog(@"%ld\t\t%lf", currentPlaybackTime, [self.delegate currentPlaybackTime]);
+    //    self.progressView.value = [self.delegate currentPlaybackTime];
     
-    _currentTimeLabel.text = [NSString stringWithFormat:@"%02ld:%02ld", currentPlaybackTime / 60, currentPlaybackTime % 60];
+    //    NSLog(@"%ld\t\t%lf", currentPlaybackTime, [self.delegate currentPlaybackTime]);
+    
+    //    _currentTimeLabel.text = [NSString stringWithFormat:@"%02ld:%02ld", currentPlaybackTime / 60, currentPlaybackTime % 60];
     
     if (_playbackState == IJKMPMoviePlaybackStatePlaying && !_bottomView.hidden) {
         [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(refresh) object:NULL];
@@ -105,9 +113,9 @@ typedef NS_ENUM(NSInteger, PlayerPanGestureHandleMode) {
     _topView.hidden = NO;
     _playSwitchButton.hidden = NO;
     
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(refresh) object:NULL];
-    [self performSelector:@selector(refresh) withObject:NULL afterDelay:0.5];
-    
+    //    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(refresh) object:NULL];
+    //    [self performSelector:@selector(refresh) withObject:NULL afterDelay:0.5];
+    [self refresh];
     
     if (_playbackState == IJKMPMoviePlaybackStatePlaying) {
         /// 延时设置隐藏
@@ -121,10 +129,61 @@ typedef NS_ENUM(NSInteger, PlayerPanGestureHandleMode) {
 - (void)handleTapGesture:(UITapGestureRecognizer *)tapGesture {
     _bottomView.hidden ? [self show] : [self hide];
 }
+
 - (void)handlePanGesture:(UIPanGestureRecognizer *)panGesture {
     CGPoint translation = [panGesture translationInView:self];
     CGPoint location = [panGesture locationInView:self];
-    
+    if (panGesture.state == UIGestureRecognizerStateBegan) {
+        if (location.x < 100 && fabs(translation.y) >= fabs(translation.x)) {
+            _panGestureHandleMode = PlayerPanGestureHandleModeBrightness;
+            NSLog(@"亮度");
+        }
+        else if (location.x >= self.bounds.size.width-100 && fabs(translation.y) >= fabs(translation.x)) {
+            _panGestureHandleMode = PlayerPanGestureHandleModeVolume;
+            NSLog(@"音量");
+        }
+        else {
+            _panGestureHandleMode = PlayerPanGestureHandleModePlayProgress;
+            _tempTime = [self.delegate currentPlaybackTime];
+            NSLog(@"播放进度");
+        }
+    }
+    else if (panGesture.state == UIGestureRecognizerStateChanged) {
+        if (_panGestureHandleMode == PlayerPanGestureHandleModePlayProgress) {
+            CGFloat offset = translation.x / self.bounds.size.width * _duration;
+            CGFloat newTime = _tempTime + offset;
+            newTime = newTime < 0 ? 0 : newTime > _duration ? _duration : newTime;
+            [VideoPlayerChangeProgressView showProgressViewWith:newTime duration:_duration];
+        }
+        else {
+            CGFloat offset = -translation.y / 200;
+            
+            if (_panGestureHandleMode == PlayerPanGestureHandleModeBrightness) {
+                /// 修改亮度
+                [UIScreen mainScreen].brightness += offset;
+            }
+            else if (_panGestureHandleMode == PlayerPanGestureHandleModeVolume) {
+                /// 修改音量
+                MPMusicPlayerController *musicPlayer = [MPMusicPlayerController applicationMusicPlayer];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+                musicPlayer.volume += offset;
+#pragma clang diagnostic pop
+            }
+            
+            [panGesture setTranslation:CGPointZero inView:self];
+        }
+    }
+    else if (panGesture.state == UIGestureRecognizerStateEnded) {
+        if (_panGestureHandleMode == PlayerPanGestureHandleModePlayProgress) {
+            CGFloat offset = translation.x / self.bounds.size.width * _duration;
+            CGFloat newTime = _tempTime + offset;
+            newTime = newTime < 0 ? 0 : newTime > _duration ? _duration : newTime;
+            [self.delegate changePlayTime:newTime];
+            [VideoPlayerChangeProgressView hidden];
+        }
+        _panGestureHandleMode = PlayerPanGestureHandleModeNone;
+    }
 }
 
 #pragma mark - Set
@@ -136,7 +195,7 @@ typedef NS_ENUM(NSInteger, PlayerPanGestureHandleMode) {
         [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(refresh) object:NULL];
         [self performSelector:@selector(refresh) withObject:NULL afterDelay:0.5];
         /// 延时设置隐藏
-         [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(hide) object:NULL];
+        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(hide) object:NULL];
         [self performSelector:@selector(hide) withObject:NULL afterDelay:5];
     }
     else if (_playbackState == IJKMPMoviePlaybackStatePaused) {
@@ -146,16 +205,21 @@ typedef NS_ENUM(NSInteger, PlayerPanGestureHandleMode) {
     }
     else if (_playbackState == IJKMPMoviePlaybackStateStopped) {
         [self.playSwitchButton setImage:[self imageWithName:@"player_play"] forState:UIControlStateNormal];
+        //        self.progressView.value = 0;
+        //        self.currentTimeLabel.text = @"00:00";
+        self.currentPlaybackTime = 0;
     }
 }
 
 - (void)setCurrentPlaybackTime:(NSTimeInterval)currentPlaybackTime {
     _currentPlaybackTime = currentPlaybackTime;
     _currentTimeLabel.text = [NSString stringWithFormat:@"%02d:%02d", (int)currentPlaybackTime / 60, (int)currentPlaybackTime % 60];
+    self.progressView.value = currentPlaybackTime;
 }
 - (void)setDuration:(NSTimeInterval)duration {
     _duration = duration;
     _durationLabel.text = [NSString stringWithFormat:@"%02d:%02d", (int)duration / 60, (int)duration % 60];
+    self.progressView.maximumValue = duration;
 }
 
 - (void)setTitle:(NSString *)title {
@@ -175,7 +239,7 @@ typedef NS_ENUM(NSInteger, PlayerPanGestureHandleMode) {
 - (UIButton *)backButton {
     if (!_backButton) {
         _backButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        [_backButton setImage:[self imageWithName:@"player_back"] forState:UIControlStateNormal];
+        [_backButton setImage:[self imageWithName:@"hd_idct_back"] forState:UIControlStateNormal];
         [_backButton addTarget:self action:@selector(onClickBack) forControlEvents:UIControlEventTouchUpInside];
     }
     return _backButton;
@@ -195,8 +259,15 @@ typedef NS_ENUM(NSInteger, PlayerPanGestureHandleMode) {
         _bottomView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
         [_bottomView addSubview:self.currentTimeLabel];
         [_bottomView addSubview:self.durationLabel];
+        [_bottomView addSubview:self.progressView];
     }
     return _bottomView;
+}
+- (VideoPlayerProgressView *)progressView {
+    if (!_progressView) {
+        _progressView = [[VideoPlayerProgressView alloc] init];
+    }
+    return _progressView;
 }
 - (UILabel *)currentTimeLabel {
     if (!_currentTimeLabel) {
@@ -234,14 +305,14 @@ typedef NS_ENUM(NSInteger, PlayerPanGestureHandleMode) {
     
     /// Top
     self.topView.frame = CGRectMake(0, 0, self.bounds.size.width, 44);
-    self.backButton.frame = CGRectMake(5, 0, 44, 44);
+    self.backButton.frame = CGRectMake(10, (44-26)/2, 26, 26);
     self.titleLabel.frame = CGRectMake(5+44+15, 0, self.topView.bounds.size.width - 5-44 -15 -15, 44);
     
     /// Bottom
     self.bottomView.frame = CGRectMake(0, (self.bounds.size.height - 49), self.bounds.size.width, 49);
     self.currentTimeLabel.frame = CGRectMake(15, (49 - 14) / 2, 55, 14);
     self.durationLabel.frame = CGRectMake(self.bottomView.bounds.size.width - 15 - 55, (49 - 14) / 2, 55, 14);
-    
+    self.progressView.frame = CGRectMake(15+55+15, (49 - 6) / 2, self.bottomView.bounds.size.width-85-85, 6);
     
     self.playSwitchButton.frame = CGRectMake(self.bounds.size.width - 10 - 55, self.bounds.size.height - 49 - 50, 55, 50);
     
@@ -260,8 +331,11 @@ typedef NS_ENUM(NSInteger, PlayerPanGestureHandleMode) {
         iconBundle = [NSBundle bundleWithURL:iconBundleURL];
         NSParameterAssert(iconBundle);
     }
-    imageName = [NSString stringWithFormat:@"%@@%ldx", imageName, (NSInteger)[UIScreen mainScreen].scale];
-    NSURL *imageURL = [iconBundle URLForResource:imageName withExtension:@"png"];
+    NSString *fileName = [NSString stringWithFormat:@"%@@%ldx", imageName, (NSInteger)[UIScreen mainScreen].scale];
+    NSURL *imageURL = [iconBundle URLForResource:fileName withExtension:@"png"];
+    if (!imageURL) {
+        imageURL = [iconBundle URLForResource:imageName withExtension:@"png"];
+    }
     NSParameterAssert(imageURL);
     NSData *imageData = [NSData dataWithContentsOfURL:imageURL];
     NSParameterAssert(imageData);

@@ -10,6 +10,7 @@
 #import <IJKMediaPlayer/IJKMediaPlayer.h>
 #import "VideoPlayerControl.h"
 
+
 @interface VideoPlayer ()
 <VideoPlayerControlDelegate>
 
@@ -98,6 +99,10 @@
 - (NSTimeInterval)currentPlaybackTime {
     return [self.player currentPlaybackTime];
 }
+- (void)changePlayTime:(NSTimeInterval)newTime {
+    [self.player setCurrentPlaybackTime:newTime];
+}
+
 
 #pragma mark - Notification
 /// 播放状态发生改变

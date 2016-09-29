@@ -24,6 +24,8 @@
 		6E39B7231D9668DC00A72A9A /* VideoPlayerControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E39B7211D9668DC00A72A9A /* VideoPlayerControl.h */; };
 		6E39B7241D9668DC00A72A9A /* VideoPlayerControl.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E39B7221D9668DC00A72A9A /* VideoPlayerControl.m */; };
 		6E5F5F2D1D9A3B8D00B2D630 /* 6282404.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 6E5F5F2C1D9A3B8D00B2D630 /* 6282404.mp4 */; };
+		6E5F5FB41D9D19B600B2D630 /* VideoPlayerProgressView.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E5F5FB21D9D19B600B2D630 /* VideoPlayerProgressView.h */; };
+		6E5F5FB51D9D19B600B2D630 /* VideoPlayerProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E5F5FB31D9D19B600B2D630 /* VideoPlayerProgressView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -71,6 +73,8 @@
 		6E39B7211D9668DC00A72A9A /* VideoPlayerControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoPlayerControl.h; sourceTree = "<group>"; };
 		6E39B7221D9668DC00A72A9A /* VideoPlayerControl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoPlayerControl.m; sourceTree = "<group>"; };
 		6E5F5F2C1D9A3B8D00B2D630 /* 6282404.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = 6282404.mp4; sourceTree = "<group>"; };
+		6E5F5FB21D9D19B600B2D630 /* VideoPlayerProgressView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoPlayerProgressView.h; sourceTree = "<group>"; };
+		6E5F5FB31D9D19B600B2D630 /* VideoPlayerProgressView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoPlayerProgressView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -120,6 +124,8 @@
 				6E39B6E21D9648FC00A72A9A /* VideoPlayer.m */,
 				6E39B7211D9668DC00A72A9A /* VideoPlayerControl.h */,
 				6E39B7221D9668DC00A72A9A /* VideoPlayerControl.m */,
+				6E5F5FB21D9D19B600B2D630 /* VideoPlayerProgressView.h */,
+				6E5F5FB31D9D19B600B2D630 /* VideoPlayerProgressView.m */,
 				6E39B6B21D96485A00A72A9A /* Info.plist */,
 				6E39B6EF1D9652A800A72A9A /* Icon.bundle */,
 			);
@@ -158,6 +164,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E5F5FB41D9D19B600B2D630 /* VideoPlayerProgressView.h in Headers */,
 				6E39B7231D9668DC00A72A9A /* VideoPlayerControl.h in Headers */,
 				6E39B6B31D96485A00A72A9A /* VideoPlayer.h in Headers */,
 			);
@@ -269,6 +276,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E5F5FB51D9D19B600B2D630 /* VideoPlayerProgressView.m in Sources */,
 				6E39B7241D9668DC00A72A9A /* VideoPlayerControl.m in Sources */,
 				6E39B6E31D9648FC00A72A9A /* VideoPlayer.m in Sources */,
 			);
