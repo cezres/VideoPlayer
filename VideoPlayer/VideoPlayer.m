@@ -7,8 +7,9 @@
 //
 
 #import "VideoPlayer.h"
-#import <IJKMediaPlayer/IJKMediaPlayer.h>
+//#import <IJKMediaPlayer/IJKMediaPlayer.h>
 #import "VideoPlayerControl.h"
+#import <IJKMediaFramework/IJKMediaFramework.h>
 
 
 @interface VideoPlayer ()

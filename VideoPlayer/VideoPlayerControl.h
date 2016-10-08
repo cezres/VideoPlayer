@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <IJKMediaPlayer/IJKMediaPlayer.h>
+#import <IJKMediaFramework/IJKMediaFramework.h>
 
 
 @protocol VideoPlayerControlDelegate <NSObject>
