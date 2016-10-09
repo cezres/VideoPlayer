@@ -89,12 +89,6 @@ typedef NS_ENUM(NSInteger, PlayerPanGestureHandleMode) {
     
     self.currentPlaybackTime = [self.delegate currentPlaybackTime];
     
-    //    self.progressView.value = [self.delegate currentPlaybackTime];
-    
-    //    NSLog(@"%ld\t\t%lf", currentPlaybackTime, [self.delegate currentPlaybackTime]);
-    
-    //    _currentTimeLabel.text = [NSString stringWithFormat:@"%02ld:%02ld", currentPlaybackTime / 60, currentPlaybackTime % 60];
-    
     if (_playbackState == IJKMPMoviePlaybackStatePlaying && !_bottomView.hidden) {
         [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(refresh) object:NULL];
         [self performSelector:@selector(refresh) withObject:NULL afterDelay:0.5];
@@ -107,14 +101,13 @@ typedef NS_ENUM(NSInteger, PlayerPanGestureHandleMode) {
     _topView.hidden = YES;
     _playSwitchButton.hidden = YES;
 }
+
 - (void)show {
     
     _bottomView.hidden = NO;
     _topView.hidden = NO;
     _playSwitchButton.hidden = NO;
     
-    //    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(refresh) object:NULL];
-    //    [self performSelector:@selector(refresh) withObject:NULL afterDelay:0.5];
     [self refresh];
     
     if (_playbackState == IJKMPMoviePlaybackStatePlaying) {
@@ -127,7 +120,14 @@ typedef NS_ENUM(NSInteger, PlayerPanGestureHandleMode) {
 
 #pragma mark - 手势
 - (void)handleTapGesture:(UITapGestureRecognizer *)tapGesture {
-    _bottomView.hidden ? [self show] : [self hide];
+    CGPoint location = [tapGesture locationInView:self];
+    if (location.x <= self.titleLabel.frame.origin.x && location.y <= CGRectGetMaxY(self.topView.frame)) {
+        [self onClickBack];
+        return;
+    }
+    if (location.y > CGRectGetMaxY(self.topView.frame) && location.y < self.bottomView.frame.origin.y) {
+        _bottomView.hidden ? [self show] : [self hide];
+    }
 }
 
 - (void)handlePanGesture:(UIPanGestureRecognizer *)panGesture {
@@ -185,6 +185,30 @@ typedef NS_ENUM(NSInteger, PlayerPanGestureHandleMode) {
         _panGestureHandleMode = PlayerPanGestureHandleModeNone;
     }
 }
+    
+    
+#pragma mark - Slider
+- (void)didSliderTouchDown; {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(hide) object:NULL];
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(refresh) object:NULL];
+}
+- (void)didSliderTouchCancel; {
+    [self performSelector:@selector(hide) withObject:NULL afterDelay:5];
+    [self refresh];
+}
+- (void)didSliderTouchUpOutside; {
+    [self performSelector:@selector(hide) withObject:NULL afterDelay:5];
+    [self refresh];
+}
+- (void)didSliderTouchUpInside; {
+    [self.delegate changePlayTime:_progressView.value];
+    [VideoPlayerChangeProgressView hidden];
+    [self performSelector:@selector(hide) withObject:NULL afterDelay:5];
+    [self refresh];
+}
+- (void)didSliderValueChanged; {
+    [VideoPlayerChangeProgressView showProgressViewWith:_progressView.value duration:_duration];
+}
 
 #pragma mark - Set
 - (void)setPlaybackState:(IJKMPMoviePlaybackState)playbackState {
@@ -205,8 +229,6 @@ typedef NS_ENUM(NSInteger, PlayerPanGestureHandleMode) {
     }
     else if (_playbackState == IJKMPMoviePlaybackStateStopped) {
         [self.playSwitchButton setImage:[self imageWithName:@"player_play"] forState:UIControlStateNormal];
-        //        self.progressView.value = 0;
-        //        self.currentTimeLabel.text = @"00:00";
         self.currentPlaybackTime = 0;
     }
 }
@@ -266,6 +288,11 @@ typedef NS_ENUM(NSInteger, PlayerPanGestureHandleMode) {
 - (VideoPlayerProgressView *)progressView {
     if (!_progressView) {
         _progressView = [[VideoPlayerProgressView alloc] init];
+        [_progressView addTarget:self action:@selector(didSliderTouchDown) forControlEvents:UIControlEventTouchDown];
+        [_progressView addTarget:self action:@selector(didSliderTouchCancel) forControlEvents:UIControlEventTouchCancel];
+        [_progressView addTarget:self action:@selector(didSliderTouchUpOutside) forControlEvents:UIControlEventTouchUpOutside];
+        [_progressView addTarget:self action:@selector(didSliderTouchUpInside) forControlEvents:UIControlEventTouchUpInside];
+        [_progressView addTarget:self action:@selector(didSliderValueChanged) forControlEvents:UIControlEventValueChanged];
     }
     return _progressView;
 }
@@ -306,7 +333,7 @@ typedef NS_ENUM(NSInteger, PlayerPanGestureHandleMode) {
     /// Top
     self.topView.frame = CGRectMake(0, 0, self.bounds.size.width, 44);
     self.backButton.frame = CGRectMake(10, (44-26)/2, 26, 26);
-    self.titleLabel.frame = CGRectMake(5+44+15, 0, self.topView.bounds.size.width - 5-44 -15 -15, 44);
+    self.titleLabel.frame = CGRectMake(10+26+20, 0, self.topView.bounds.size.width - 5-44 -15 -15, 44);
     
     /// Bottom
     self.bottomView.frame = CGRectMake(0, (self.bounds.size.height - 49), self.bounds.size.width, 49);
@@ -323,22 +350,16 @@ typedef NS_ENUM(NSInteger, PlayerPanGestureHandleMode) {
 - (UIImage *)imageWithName:(NSString *)imageName {
     static NSBundle *iconBundle;
     if (!iconBundle) {
-        NSParameterAssert(imageName);
         NSBundle *currentBundle = [NSBundle bundleForClass:[self class]];
-        NSParameterAssert(currentBundle);
         NSURL *iconBundleURL = [currentBundle URLForResource:@"Icon" withExtension:@"bundle"];
-        NSParameterAssert(iconBundleURL);
         iconBundle = [NSBundle bundleWithURL:iconBundleURL];
-        NSParameterAssert(iconBundle);
     }
-    NSString *fileName = [NSString stringWithFormat:@"%@@%ldx", imageName, (NSInteger)[UIScreen mainScreen].scale];
+    NSString *fileName = [NSString stringWithFormat:@"%@@%ldx", imageName, (long)[UIScreen mainScreen].scale];
     NSURL *imageURL = [iconBundle URLForResource:fileName withExtension:@"png"];
     if (!imageURL) {
         imageURL = [iconBundle URLForResource:imageName withExtension:@"png"];
     }
-    NSParameterAssert(imageURL);
     NSData *imageData = [NSData dataWithContentsOfURL:imageURL];
-    NSParameterAssert(imageData);
     return [UIImage imageWithData:imageData];
 }
 

@@ -21,10 +21,19 @@
         
         CGFloat width = 10;
         
-        UIGraphicsBeginImageContextWithOptions(CGSizeMake(10, 10), YES, [UIScreen mainScreen].scale);
-        CGContextSetFillColorWithColor(UIGraphicsGetCurrentContext(), [UIColor whiteColor].CGColor);
-        CGContextAddArc(UIGraphicsGetCurrentContext(), width/2, width/2, width/2, 0, 2*M_PI, 0);
-        CGContextDrawPath(UIGraphicsGetCurrentContext(), kCGPathFill);
+        UIGraphicsBeginImageContextWithOptions(CGSizeMake(10, 10), NO, [UIScreen mainScreen].scale);
+        CGContextRef context = UIGraphicsGetCurrentContext();
+        
+        UIColor *bgColor = [UIColor clearColor];
+        CGContextSetStrokeColorWithColor(context, bgColor.CGColor);
+        CGContextSetFillColorWithColor(context, bgColor.CGColor);
+        CGRect bgRect = CGRectMake(0, 0, width, width);
+        CGContextAddRect(context, bgRect);
+        CGContextDrawPath(context, kCGPathFillStroke);
+        
+        CGContextSetFillColorWithColor(context, [UIColor whiteColor].CGColor);
+        CGContextAddArc(context, width/2, width/2, width/2, 0, 2*M_PI, 0);
+        CGContextDrawPath(context, kCGPathFill);
         UIImage *thumb = UIGraphicsGetImageFromCurrentImageContext();
         UIGraphicsEndImageContext();
         

@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
 s.name         = 'VideoPlayer'
-s.version      = '0.1.0'
+s.version      = '0.1.1'
 s.summary      = '视频播放器，基于ijkplayer简单封装一下。'
 s.homepage     = 'https://github.com/cezres/VideoPlayer'
 s.license      = { :type => 'MIT', :file => 'LICENSE' }
@@ -16,7 +16,11 @@ s.public_header_files = 'VideoPlayer/**/*.h'
 
 s.resources           = 'VideoPlayer/Icon.bundle'
 
-s.vendored_frameworks = 'VideoPlayer/IJKMediaPlayer.framework'
+s.vendored_frameworks = 'VideoPlayer/IJKMediaFramework.framework'
+
+
+s.frameworks   = 'AudioToolbox', 'AVFoundation', 'CoreGraphics', 'CoreMedia', 'CoreVideo', 'MediaPlayer', 'MobileCoreServices', 'OpenGLES','QuartzCore', 'UIKit', 'VideoToolbox'
+s.libraries = 'bz2', 'z'
 
 end
 

@@ -7,7 +7,6 @@
 //
 
 #import "VideoPlayer.h"
-//#import <IJKMediaPlayer/IJKMediaPlayer.h>
 #import "VideoPlayerControl.h"
 #import <IJKMediaFramework/IJKMediaFramework.h>
 
@@ -108,12 +107,12 @@
 #pragma mark - Notification
 /// 播放状态发生改变
 - (void)moviePlayBackStateDidChange:(NSNotification*)notification {
-    NSLog(@"PlayBackState: %ld", [self.player playbackState]);
+    NSLog(@"PlayBackState: %ld", (long)[self.player playbackState]);
     self.controlView.playbackState = [self.player playbackState];
 }
 /// 加载状态发生改变
 - (void)moviePlayLoadStateDidChange:(NSNotification*)notification {
-    NSLog(@"PlayLoadState: %ld", [self.player loadState]);
+    NSLog(@"PlayLoadState: %ld", (unsigned long)[self.player loadState]);
     if ([self.player loadState] & IJKMPMovieLoadStatePlayable) {
         self.controlView.duration = [self.player duration];
     }

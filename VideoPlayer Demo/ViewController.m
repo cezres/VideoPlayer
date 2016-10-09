@@ -21,7 +21,6 @@
     
 }
 
-
 - (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     
     NSURL *videoURL = [[NSBundle mainBundle] URLForResource:@"6282404" withExtension:@"mp4"];
