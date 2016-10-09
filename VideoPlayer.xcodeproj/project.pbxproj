@@ -23,7 +23,6 @@
 		6E5F5F2D1D9A3B8D00B2D630 /* 6282404.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 6E5F5F2C1D9A3B8D00B2D630 /* 6282404.mp4 */; };
 		6E5F5FB41D9D19B600B2D630 /* VideoPlayerProgressView.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E5F5FB21D9D19B600B2D630 /* VideoPlayerProgressView.h */; };
 		6E5F5FB51D9D19B600B2D630 /* VideoPlayerProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E5F5FB31D9D19B600B2D630 /* VideoPlayerProgressView.m */; };
-		6E5F5FB71D9E01C200B2D630 /* VideoPlayer.podspec in Resources */ = {isa = PBXBuildFile; fileRef = 6E5F5FB61D9E01C200B2D630 /* VideoPlayer.podspec */; };
 		6EB100001DA8DB7800E1A643 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EB1FFFF1DA8DB7800E1A643 /* AVFoundation.framework */; };
 		6EB100021DA8DB7E00E1A643 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EB100011DA8DB7E00E1A643 /* CoreGraphics.framework */; };
 		6EB100041DA8DB8700E1A643 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EB100031DA8DB8700E1A643 /* CoreMedia.framework */; };
@@ -318,7 +317,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				6E39B6F01D9652A900A72A9A /* Icon.bundle in Resources */,
-				6E5F5FB71D9E01C200B2D630 /* VideoPlayer.podspec in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -498,6 +496,7 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.cezr.VideoPlayer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
