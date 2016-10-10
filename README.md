@@ -6,6 +6,6 @@
 2. `[VideoPlayer playVideoWithURL:videoURL title:@"【2016拜年祭单品】Travel" inController:self];`
 
 #### 截图
-<img src="https://github.com/cezres/VideoPlayer/images/IMG_1524.jpg" width=400 />
+<img src="https://github.com/cezres/VideoPlayer/blob/master/images/IMG_1524.jpg" width=400 />
 
 
